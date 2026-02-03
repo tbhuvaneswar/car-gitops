@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dummy-car
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /dev1/app
+        pathType: Prefix
+        backend:
+          service:
+            name: dummy-car
+            port:
+              number: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-car
+spec:
+  template:
+    spec:
+      containers:
+      - name: dummy-car
+        image: ghcr.io/tbhuvaneswar/dummy-car:REPLACED_BY_CI

@@ -1,0 +1,16 @@
+namespace: dev1
+
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - patch.yaml
+
+configMapGenerator:
+  - name: dummy-car-config
+    literals:
+      - APP_ENV=dev1
+      - DB_HOST=car-dev5-postgres.corss2yga07n.us-east-1.rds.amazonaws.com
+      - DB_NAME=car
+generatorOptions:
+  disableNameSuffixHash: true
