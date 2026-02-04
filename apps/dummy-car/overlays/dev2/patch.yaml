@@ -23,4 +23,4 @@ spec:
     spec:
       containers:
       - name: dummy-car
-        image: ghcr.io/tbhuvaneswar/dummy-car:REPLACED_BY_CI
+        image: ghcr.io/tbhuvaneswar/dummy-car:a0faa1c
