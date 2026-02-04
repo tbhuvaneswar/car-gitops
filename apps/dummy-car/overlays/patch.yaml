@@ -1,16 +1,26 @@
-      - name: Update GitOps overlays image tag
-        run: |
-          set -e
-          TAG=${{ steps.vars.outputs.TAG }}
-          OWNER=${{ github.repository_owner }}
+- name: Update GitOps overlays (image tag + ingress paths)
+  run: |
+    set -euo pipefail
+    TAG=${{ steps.vars.outputs.TAG }}
+    OWNER=${{ github.repository_owner }}
 
-          echo "Searching for patch.yaml under car-gitops..."
-          find car-gitops -type f -path "*/overlays/*/patch.yaml" -print
+    echo "Finding overlay patch.yaml files..."
+    files=$(find car-gitops -type f -path "*/overlays/*/patch.yaml")
+    echo "$files"
 
-          # Update image in every patch.yaml found
-          while IFS= read -r file; do
-            echo "Updating $file"
-            sed -i "s#ghcr.io/.*/dummy-car:.*#ghcr.io/${OWNER}/dummy-car:${TAG}#g" "$file"
-          done < <(find car-gitops -type f -path "*/overlays/*/patch.yaml")
+    for file in $files; do
+      echo "Updating image in $file"
+      sed -i "s#ghcr.io/.*/dummy-car:.*#ghcr.io/${OWNER}/dummy-car:${TAG}#g" "$file"
+    done
 
-          echo "Done."
+    echo "Fixing ingress paths (/devX/app -> /devX etc)..."
+    # dev1
+    sed -i "s#path: /dev1/app#path: /dev1#g" car-gitops/apps/dummy-car/overlays/dev1/patch.yaml || true
+    # dev2
+    sed -i "s#path: /dev2/app#path: /dev2#g" car-gitops/apps/dummy-car/overlays/dev2/patch.yaml || true
+    # qa
+    sed -i "s#path: /qa/app#path: /qa#g"     car-gitops/apps/dummy-car/overlays/qa/patch.yaml || true
+    # prod
+    sed -i "s#path: /prod/app#path: /prod#g" car-gitops/apps/dummy-car/overlays/prod/patch.yaml || true
+
+    echo "Done."
