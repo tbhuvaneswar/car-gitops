@@ -1,0 +1,16 @@
+      - name: Update GitOps overlays image tag
+        run: |
+          set -e
+          TAG=${{ steps.vars.outputs.TAG }}
+          OWNER=${{ github.repository_owner }}
+
+          echo "Searching for patch.yaml under car-gitops..."
+          find car-gitops -type f -path "*/overlays/*/patch.yaml" -print
+
+          # Update image in every patch.yaml found
+          while IFS= read -r file; do
+            echo "Updating $file"
+            sed -i "s#ghcr.io/.*/dummy-car:.*#ghcr.io/${OWNER}/dummy-car:${TAG}#g" "$file"
+          done < <(find car-gitops -type f -path "*/overlays/*/patch.yaml")
+
+          echo "Done."
